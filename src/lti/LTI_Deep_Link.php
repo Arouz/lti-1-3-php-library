@@ -1,7 +1,7 @@
 <?php
 namespace IMSGlobal\LTI;
 
-use \Firebase\JWT\JWT;
+use \Vfork\Firebase\JWT\JWT;
 class LTI_Deep_Link {
 
     private $registration;

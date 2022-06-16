@@ -1,8 +1,8 @@
 <?php
 namespace IMSGlobal\LTI;
 
-use Firebase\JWT\JWK;
-use Firebase\JWT\JWT;
+use Vfork\Firebase\JWT\JWK;
+use Vfork\Firebase\JWT\JWT;
 
 JWT::$leeway = 5;
 
