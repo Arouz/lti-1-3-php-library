@@ -1,5 +1,7 @@
 {
     "name": "vfork-imsglobal/lti-1p3-tool",
+    "description": "LTI 1.3 Tool fork",
+    "license": "MIT",
     "type": "library",
     "require": {
         "vfork-fproject/php-jwt": "dev-master",
