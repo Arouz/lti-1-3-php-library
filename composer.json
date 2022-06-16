@@ -1,8 +1,8 @@
 {
-    "name": "imsglobal/lti-1p3-tool",
+    "name": "vfork-imsglobal/lti-1p3-tool",
     "type": "library",
     "require": {
-        "fproject/php-jwt": "^4.0",
+        "vfork-fproject/php-jwt": "dev-master",
         "phpseclib/phpseclib": "^2.0"
     },
     "autoload": {
