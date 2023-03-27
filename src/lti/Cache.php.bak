@@ -31,11 +31,16 @@ class Cache {
     }
 
     private function load_cache() {
-        $this->cache = $_SESSION['lti_cache'];
+        $cache = file_get_contents(sys_get_temp_dir() . '/lti_cache.txt');
+        if (empty($cache)) {
+            file_put_contents(sys_get_temp_dir() . '/lti_cache.txt', '{}');
+            $this->cache = [];
+        }
+        $this->cache = json_decode($cache, true);
     }
 
     private function save_cache() {
-        $_SESSION['lti_cache'] = $this->cache;
+        file_put_contents(sys_get_temp_dir() . '/lti_cache.txt', json_encode($this->cache));
     }
 }
 ?>
