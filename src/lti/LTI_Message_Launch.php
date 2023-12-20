@@ -1,5 +1,6 @@
 <?php
 namespace IMSGlobal\LTI;
+use Dotenv\Dotenv;
 
 use Vfork\Firebase\JWT\JWK;
 use Vfork\Firebase\JWT\JWT;
@@ -15,6 +16,7 @@ class LTI_Message_Launch {
     private $jwt;
     private $registration;
     private $launch_id;
+    private $dotenv;
 
     /**
      * Constructor
@@ -37,6 +39,8 @@ class LTI_Message_Launch {
             $cookie = new Cookie();
         }
         $this->cookie = $cookie;
+        $this->$dotenv = Dotenv::createImmutable(__DIR__ . "/../../../../");
+        $this->$dotenv->safeLoad();
     }
 
     /**
@@ -78,8 +82,8 @@ class LTI_Message_Launch {
         }
         $this->request = $request;
 
-        return $this->validate_state()
-            ->validate_jwt_format()
+        return $this->validate_jwt_format()
+            ->validate_state()
             ->validate_nonce()
             ->validate_registration()
             ->validate_jwt_signature()
@@ -238,11 +242,28 @@ class LTI_Message_Launch {
 
     private function validate_state() {
         // Check State for OIDC.
-        if ($this->cookie->get_cookie('lti1p3_' . $this->request['state']) !== $this->request['state']) {
+        $nonce = $this->jwt['body']['nonce'];
+        $state64 = $this->request['state'];
+        $state = base64_decode($state64);
+        $privateKey = $this->get_private_key();
+        $publicKeyPem = openssl_pkey_get_details(openssl_pkey_get_private($privateKey))['key'];
+        $publicKey = openssl_pkey_get_public($publicKeyPem);
+        openssl_public_decrypt($state, $decryptedState, $publicKey);
+        if ($decryptedState !== $nonce) {
             // Error if state doesn't match
-            throw new LTI_Exception("State not found", 1);
+            throw new LTI_Exception("Invalid state", 1);
         }
         return $this;
+    }
+
+    private function get_private_key() {
+        $base64PrivateKey = $_ENV["VS_PRIVATE_KEY"];
+        $fourRemainder = strlen($base64PrivateKey) % 4;
+        if ($fourRemainder) {
+            $base64PrivateKey .= substr('====', $fourRemainder);
+        }
+        $privateKey = base64_decode($base64PrivateKey);
+        return $privateKey;
     }
 
     private function validate_jwt_format() {

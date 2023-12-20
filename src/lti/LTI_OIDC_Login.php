@@ -1,11 +1,13 @@
 <?php
 namespace IMSGlobal\LTI;
+use Dotenv\Dotenv;
 
 class LTI_OIDC_Login {
 
     private $db;
     private $cache;
     private $cookie;
+    private $dotenv;
 
     /**
      * Constructor
@@ -25,6 +27,8 @@ class LTI_OIDC_Login {
             $cookie = new Cookie();
         }
         $this->cookie = $cookie;
+        $this->$dotenv = Dotenv::createImmutable(__DIR__ . "/../../../../");
+        $this->$dotenv->safeLoad();
     }
 
     /**
@@ -59,14 +63,11 @@ class LTI_OIDC_Login {
          * Build OIDC Auth Response.
          */
 
-        // Generate State.
-        // Set cookie (short lived)
-        $state = str_replace('.', '_', uniqid('state-', true));
-        $this->cookie->set_cookie("lti1p3_$state", $state, 60);
-
         // Generate Nonce.
         $nonce = uniqid('nonce-', true);
         $this->cache->cache_nonce($nonce);
+
+        $state = $this->generateState($nonce);
 
         // Build Response.
         $auth_params = [
@@ -116,5 +117,17 @@ class LTI_OIDC_Login {
 
         // Return Registration.
         return $registration;
+    }
+
+    protected function generateState($nonce) {
+        $base64PrivateKey = $_ENV["VS_PRIVATE_KEY"];
+        $fourRemainder = strlen($base64PrivateKey) % 4;
+        if ($fourRemainder) {
+            $base64PrivateKey .= substr('====', $fourRemainder);
+        }
+        $privateKey = base64_decode($base64PrivateKey);
+        openssl_private_encrypt($nonce, $encryptedNonce, $privateKey);
+        $state = base64_encode($encryptedNonce);
+        return $state;
     }
 }
