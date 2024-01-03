@@ -39,8 +39,8 @@ class LTI_Message_Launch {
             $cookie = new Cookie();
         }
         $this->cookie = $cookie;
-        $this->$dotenv = Dotenv::createImmutable(__DIR__ . "/../../../../");
-        $this->$dotenv->safeLoad();
+        $this->dotenv = Dotenv::createImmutable(__DIR__ . "/../../../../");
+        $this->dotenv->safeLoad();
     }
 
     /**
