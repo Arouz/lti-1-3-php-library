@@ -27,8 +27,8 @@ class LTI_OIDC_Login {
             $cookie = new Cookie();
         }
         $this->cookie = $cookie;
-        $this->$dotenv = Dotenv::createImmutable(__DIR__ . "/../../../../");
-        $this->$dotenv->safeLoad();
+        $this->dotenv = Dotenv::createImmutable(__DIR__ . "/../../../../");
+        $this->dotenv->safeLoad();
     }
 
     /**
